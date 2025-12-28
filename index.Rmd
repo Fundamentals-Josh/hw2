@@ -3,145 +3,170 @@ title: An R Markdown document converted from "hw2_Applying_Fun_R.ipynb"
 output: html_document
 ---
 
+
 # Applying functions in R
 
-Installing to tead Excel files:
-
 ```{r}
-install.packages('rio')
+options(repos = c(CRAN = 'https://cloud.r-project.org'))
+```
+
+
+```{r} 
+install.packages('rio')#adding the necessary package to read the data.
+```
+
 ```
 
 # reading data
 
 ```{r}
 # opening a file from a url (file in Excel), name it 'fragility23'
-linkGit="https://github.com/DACSS-Fundamentals/overview/raw/refs/heads/main/FSI-2023-DOWNLOAD.xlsx"
+linkGit="https://github.com/Fundamentals-Josh/hw2/raw/refs/heads/main/FSI-2023-DOWNLOAD.xlsx"  #modified code structure to point to the file I have added in my own repository. Access and read the data from the file. 
 
 # library(rio) # package needed
 fragility23=rio::import(file = linkGit) #object that will hold the result
 ```
 
 ```{r}
-str(fragility23)
+str(fragility23) #displays internal data structure of the data frame being examined.
 ```
 
 ## Apply square root function?
 
-```{r}
+
 # whole DF?
-sqrt(fragility23)
+sqrt(fragility23) #using this command attempts to obtain the square root of the entire data function.  As the data frame includes non-numeric variables, use of this command triggers an error code.
 ```
 
 ```{r}
 # several columns (only numerical)
 
-sqrt(fragility23[,4:5])
+sqrt(fragility23[,4:5]) #this function limits the square root function to selected columns.  In this case, the function successfully executes, because the selected columns contains numerical data.
 ```
 
 ```{r}
 # one column
-sqrt(fragility23$Total)
+sqrt(fragility23$Total)  #this function finds the square root of the 'Total' column of the data frame for each row.
 ```
 
 ```{r}
 # one value
-sqrt(fragility23$Total[1])
+sqrt(fragility23$Total[1]) #this function finds the square root of row 1 of the total column in the data frame. 
 ```
 
 ## Applying **sum()**:
 
 ```{r}
 # sum everything
-sum(fragility23[,4:5])
+sum(fragility23[,4:5]) #this function finds the total sum of columns 4 and 5 of the data frame. 
 ```
 
 ```{r}
 # sum by column
-print(apply(fragility23[,4:5],2,sum))
+print(apply(fragility23[,4:5],2,sum)) #this function sums columns 4 and 5, but as separate figures.
 ```
 
 ```{r}
 #notice
-typeof(apply(fragility23[,4:5],2,sum))
+typeof(apply(fragility23[,4:5],2,sum)) #this function provides you with the data type for the previous command.  As the totals include decimals, the data type is a double. 
 ```
 
 If you do not see **list**, then it is a vector. ⏫
 
 ```{r}
 # sum by row
-print(apply(fragility23[,4:5],1,sum))
+print(apply(fragility23[,4:5],1,sum)) #this function applies the sum by row.
 ```
 
 ### Apply by iterating:
 
 ```{r}
-print(lapply(fragility23[,4:5],sum))
+print(lapply(fragility23[,4:5],sum)) #this function will sum separately by column, but will treat the data as a list.  
 ```
 
 Notice output of **lapply**:
 
 ```{r}
-typeof(lapply(fragility23[,4:5],sum))
+typeof(lapply(fragility23[,4:5],sum)) #shows the datatype of the previous function.  This command confirms that the lapply function results in the data being treated as a list, rather than a vector.
 ```
 
 ```{r}
-class(lapply(fragility23[,4:5],sum))
+class(lapply(fragility23[,4:5],sum))  #this function confirms that the data class of the function is a list.
 ```
 
 Notice output of **sapply**:
 
 ```{r}
-print(sapply(fragility23[,4:5],sum))
+print(sapply(fragility23[,4:5],sum)) #this function provides separate sums for columns 4 & 5, but treats the data class as numeric.
 ```
 
 ```{r}
-class(sapply(fragility23[,4:5],sum))
+class(sapply(fragility23[,4:5],sum)) #this function confirms the stated function treats the class for the data as numeric
 ```
 
 Similarly:
 
 ```{r}
-print(lapply(fragility23[,4:5],sqrt))
+print(lapply(fragility23[,4:5],sqrt))  #this function figures the square root for the figures in columns 4 and 5 but treats the data class as a list.
 ```
 
 ```{r}
-class(lapply(fragility23[,4:5],sqrt))
+class(lapply(fragility23[,4:5],sqrt)) #this function confirms the previous function is treating the data from columns 4 & 5 as a list. 
 ```
 
 ```{r}
-print(sapply(fragility23[,4:5],sqrt))
+print(sapply(fragility23[,4:5],sqrt)) #this function figures the square root for figures 4 & 5.
 ```
 
 ```{r}
-class(sapply(fragility23[,4:5],sqrt))
+class(sapply(fragility23[,4:5],sqrt)) #this function confirms that the data is being treated as a matrix array (vector).  
 ```
 
 Now our own function:
 
 ```{r}
-theOnesOK = function(DF_country_and_variable) {
-  variable_values <- DF_country_and_variable[,2]
-  avg_value <- mean(variable_values, na.rm = TRUE)
-  is_above <- ifelse(variable_values > avg_value, "Above Average", "Below/At Average")
-  DF_country_and_variable$Status <- is_above
-  return(DF_country_and_variable)
+theOnesOK = function(DF_country_and_variable) { #This defines a function named theOnesOK that accepts one argument: DF_country_and_variable, which is expected to be a data frame.
+  variable_values <- DF_country_and_variable[,2]#It extracts all values from the second column of the input data frame and stores them in a vector named variable_values. 
+  avg_value <- mean(variable_values, na.rm = TRUE) #It calculates the mean (average) of the variable_values vector. na.rm = TRUE ensures that any missing values (NA) are ignored during the mean calculation.
+  is_above <- ifelse(variable_values > avg_value, "Above Average", "Below/At Average") #This line creates a new vector called is_above. For each value in variable_values, it checks if that value is greater than the calculated avg_value. If it is, the corresponding element in is_above becomes "Above Average"; otherwise, it becomes "Below/At Average".
+  DF_country_and_variable$Status <- is_above #It adds a new column named Status to the original input data frame DF_country_and_variable and populates it with the values from the is_above vector.
+  return(DF_country_and_variable) #The function returns the modified data frame, which now includes the new Status column.
+}
+``` 
+
+```{r}
+theOnesOK(fragility23[,c('Country','S1: Demographic Pressures')]) #This takes the previously constructed command and applies it to the defined columns of the data frame. 
+```
+
+
+
+```{r}
+mystery=function(DF,positionsToUse,CountryColumn='Country'){# This defines a function named mystery that has three components: DF The input data frame. positionsToUse: A vector of column indices from the data frame where we want to calculate the average. CountryColumn: The name of the column in DF that contains country information (defaults to 'Country').
+
+  newDF=DF[,c(CountryColumn),drop = FALSE] #It creates a new data frame called newDF containing only the CountryColumn from the original DF
+  average='average' #defines the label 'average' to be used as the name for the new column that will store the calculated averages.
+  newDF[,average]=apply(DF[,positionsToUse],1,mean,na.rm = TRUE)#creates a new data frame called newDF containing only the CountryColumn from the original DF
+  return(newDF[,c(CountryColumn,average)]) #the function returns the newDF data frame, but it explicitly selects only the CountryColumn and the newly created 'average' column to be part of the output.
 }
 ```
 
 ```{r}
-theOnesOK(fragility23[,c('Country','S1: Demographic Pressures')])
+mystery(fragility23,4:6) #applies the previous command from columns 4 to 6
 ```
 
 ```{r}
-mystery=function(DF,positionsToUse,CountryColumn='Country'){
-  newDF=DF[,c(CountryColumn),drop = FALSE]
-  average='average'
-  newDF[,average]=apply(DF[,positionsToUse],1,mean,na.rm = TRUE)
-  return(newDF[,c(CountryColumn,average)])
+theOnesOK2 = function(DF, DFvariable, CountryColumn='Country') { #This defines a function named theOnesOK2 and has three components, DF: The input data frame, DFvariable: A string representing the name of the column in the data frame that contains the numerical values,CountryColumn, The name of the column in DF that contains country information.
+
+  variable_values <- DF[,DFvariable] #It extracts all values from the column specified by DFvariable from the input DF and stores them in a vector named variable_values.
+  avg_value <- mean(variable_values, na.rm = TRUE) #It calculates the mean (average) of the variable_values vector. na.rm = TRUE ensures that any missing values (NA) are ignored during the mean calculation.
+  is_above <- ifelse(variable_values > avg_value, "Above Average", "Below/At Average") #This line creates a new vector called is_above. For each value in variable_values, it checks if that value is greater than the calculated avg_value. If it is, the corresponding is in is_above becomes "Above Average"; otherwise, it becomes "Below/At Average".
+  newname = paste('Status_on', DFvariable) #This command creates a name for the new status column, depending on the column selected. For example, if DFvariable is 'S1: Demographic Pressures', newname will become 'Status_on S1: Demographic Pressures'.
+  DF[,newname] <- is_above #Adds a new column named newname (per the above command) to the original input data frameand populates it with the values from the is_above vector.
+  return(DF[,c(CountryColumn, newname)]) # The function returns a new data frame that contains only the CountryColumn and the newly created status column (newname) from the modified data fr.
 }
 ```
 
 ```{r}
-mystery(fragility23,4:6)
+theOnesOK2(fragility23, 'S1: Demographic Pressures')#executes above command. 
 ```
 
